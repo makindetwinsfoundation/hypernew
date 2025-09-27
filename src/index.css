@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 99%; 
+    --foreground: 222 50% 8%; 
+    
+    --card: 0 0% 100%; 
+    --card-foreground: 222 50% 8%; 
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 50% 8%;
+    
+    --primary: 252 85% 58%; 
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 50% 8%;
+    
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215 20% 65%; 
+    
+    --accent: 190 75% 48%;
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 214 32% 91%; 
+    --input: 214 32% 91%;   
+    --ring: 252 90% 60%;
+    
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222 26% 7%;
+    --foreground: 210 40% 98%;
+    
+    --card: 222 28% 9%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 222 28% 9%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 252 90% 65%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 217 76% 83%;
+    --secondary-foreground: 222 47% 11%;
+    
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 190 70% 52%;
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 224 76% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.crypto-gradient {
+  background: linear-gradient(135deg, rgba(var(--primary), 0.8), rgba(var(--accent), 0.8));
+}
+
+.crypto-card {
+  background: hsla(var(--card) / 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsla(var(--border) / 0.3); 
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.dark .crypto-card {
+  background: rgba(30, 41, 59, 0.8); 
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.glass-effect {
+  background: hsla(var(--card) / 0.6); 
+  backdrop-filter: blur(8px);
+  border: 1px solid hsla(var(--border) / 0.2); 
+  transition: all 0.2s ease;
+}
+
+.dark .glass-effect {
+  background: rgba(30, 41, 59, 0.6); 
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.bg-mesh {
+  background-image: radial-gradient(at 40% 20%, hsla(var(--primary) / 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, hsla(var(--accent) / 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, hsla(255, 86%, 60%, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 100%, hsla(190, 100%, 50%, 0.1) 0px, transparent 50%);
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.native-touch {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.text-black {
+  color: #000000 !important;
+}
+
+.dark .text-black {
+  color: #000000 !important;
+}
