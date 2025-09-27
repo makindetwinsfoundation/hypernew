@@ -14,7 +14,7 @@ import PinConfirmationModal from "@/components/modals/PinConfirmationModal";
 
 const Swap = () => {
   const navigate = useNavigate();
-  const { cryptos, convertCrypto } = useWallet();
+  const { cryptos, convertCrypto, fetchWalletBalances, fetchTransactions } = useWallet();
   const { toast } = useToast();
   
   const [fromCrypto, setFromCrypto] = useState("");
@@ -25,6 +25,7 @@ const Swap = () => {
   const [pendingTransaction, setPendingTransaction] = useState(null);
   const [quoteDetails, setQuoteDetails] = useState(null);
   const [loadingQuote, setLoadingQuote] = useState(false);
+  const [quoteError, setQuoteError] = useState("");
 
   useEffect(() => {
     if (cryptos.length > 0) {
@@ -35,6 +36,58 @@ const Swap = () => {
     }
   }, [cryptos]);
 
+  // Auto-fetch quote when amount, fromCrypto, or toCrypto changes
+  useEffect(() => {
+    const fetchQuote = async () => {
+      if (!amount || !fromCrypto || !toCrypto || fromCrypto === toCrypto || parseFloat(amount) <= 0) {
+        setQuoteDetails(null);
+        setQuoteError("");
+        return;
+      }
+
+      const fromCryptoData = cryptos.find((c) => c.id === fromCrypto);
+      const toCryptoData = cryptos.find((c) => c.id === toCrypto);
+      
+      if (!fromCryptoData || !toCryptoData) {
+        return;
+      }
+
+      // Check if amount exceeds balance
+      if (parseFloat(amount) > fromCryptoData.balance) {
+        setQuoteDetails(null);
+        setQuoteError("Insufficient balance");
+        return;
+      }
+
+      setLoadingQuote(true);
+      setQuoteError("");
+      
+      try {
+        const quote = await walletAPI.getSwapQuote(
+          fromCryptoData.symbol.toUpperCase(),
+          toCryptoData.symbol.toUpperCase(),
+          amount
+        );
+
+        if (quote && quote.success) {
+          setQuoteDetails(quote.data);
+        } else {
+          setQuoteDetails(null);
+          setQuoteError("Unable to get quote");
+        }
+      } catch (error) {
+        console.error('Quote fetch error:', error);
+        setQuoteDetails(null);
+        setQuoteError("Network error");
+      } finally {
+        setLoadingQuote(false);
+      }
+    };
+
+    // Debounce the quote fetching to avoid too many API calls
+    const timeoutId = setTimeout(fetchQuote, 500);
+    return () => clearTimeout(timeoutId);
+  }, [amount, fromCrypto, toCrypto, cryptos]);
   const handleAmountChange = (e) => {
     const value = e.target.value.replace(/[^0-9.]/g, "");
     setAmount(value);
@@ -51,8 +104,6 @@ const Swap = () => {
     const temp = fromCrypto;
     setFromCrypto(toCrypto);
     setToCrypto(temp);
-    // Clear quote when swapping currencies
-    setQuoteDetails(null);
   };
 
   const handleSubmit = async (e) => {
@@ -86,46 +137,23 @@ const Swap = () => {
       return;
     }
 
-    // Get swap quote from backend
-    setLoadingQuote(true);
-    try {
-      const fromCryptoData = cryptos.find((c) => c.id === fromCrypto);
-      const toCryptoData = cryptos.find((c) => c.id === toCrypto);
-      
-      const quote = await walletAPI.getSwapQuote(
-        fromCryptoData.symbol.toUpperCase(),
-        toCryptoData.symbol.toUpperCase(),
-        amount
-      );
-
-      if (quote && quote.success) {
-        setQuoteDetails(quote.data);
-        
-        // Store transaction details and open PIN modal
-        setPendingTransaction({
-          fromCrypto,
-          toCrypto,
-          amount: parseFloat(amount),
-          quote: quote.data
-        });
-        setIsPinModalOpen(true);
-      } else {
-        toast({
-          title: "Quote Failed",
-          description: (quote?.message || "Failed to get swap quote") + ". Please check your internet connection and try again later.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Swap quote error:', error);
+    if (!quoteDetails) {
       toast({
         title: "Quote Failed",
-        description: (error.message || "Network error") + ". Please check your internet connection and try again later.",
+        description: "Unable to get swap quote. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setLoadingQuote(false);
+      return;
     }
+
+    // Store transaction details and open PIN modal
+    setPendingTransaction({
+      fromCrypto,
+      toCrypto,
+      amount: parseFloat(amount),
+      quote: quoteDetails
+    });
+    setIsPinModalOpen(true);
   };
 
   const handlePinConfirmed = async (pin) => {
@@ -185,14 +213,28 @@ const Swap = () => {
   const handlePinModalClose = () => {
     setIsPinModalOpen(false);
     setPendingTransaction(null);
-    setQuoteDetails(null);
   };
 
   const fromCryptoData = cryptos.find((c) => c.id === fromCrypto);
   const toCryptoData = cryptos.find((c) => c.id === toCrypto);
   
   const maxAmount = fromCryptoData ? fromCryptoData.balance : 0;
-  
+
+  const getDisplayAmount = () => {
+    if (loadingQuote) return "Getting quote...";
+    if (quoteError) return quoteError;
+    if (quoteDetails && quoteDetails.toAmount) {
+      return parseFloat(quoteDetails.toAmount).toFixed(6);
+    }
+    return "";
+  };
+
+  const getDisplaySubtext = () => {
+    if (loadingQuote) return "Please wait";
+    if (quoteError) return "Try adjusting the amount";
+    if (quoteDetails) return "You'll receive approximately";
+    return "Enter amount to see quote";
+  };
 
   return (
     <div className="min-h-screen bg-background bg-mesh flex flex-col">
@@ -354,13 +396,15 @@ const Swap = () => {
             <div className="text-center">
               <Input
                 type="text"
-                value={quoteDetails ? parseFloat(quoteDetails.toAmount).toFixed(6) : ""}
+                value={getDisplayAmount()}
                 readOnly
                 placeholder="0.00"
-                className="text-center text-2xl font-bold border-none bg-transparent focus:ring-0 h-auto p-0 text-muted-foreground"
+                className={`text-center text-2xl font-bold border-none bg-transparent focus:ring-0 h-auto p-0 ${
+                  quoteError ? "text-destructive" : "text-muted-foreground"
+                }`}
               />
               <p className="text-sm text-muted-foreground mt-1">
-                {loadingQuote ? "Getting quote..." : "You'll receive approximately"}
+                {getDisplaySubtext()}
               </p>
             </div>
           </div>
@@ -422,9 +466,9 @@ const Swap = () => {
           <Button 
             onClick={handleSubmit}
             className="flex-1 h-14 bg-primary hover:bg-primary/90 text-white font-semibold text-base rounded-xl flex items-center justify-center gap-2 shadow-lg"
-            disabled={!fromCrypto || !toCrypto || !amount || isSubmitting || loadingQuote || fromCrypto === toCrypto || isPinModalOpen}
+           disabled={!fromCrypto || !toCrypto || !amount || isSubmitting || fromCrypto === toCrypto || isPinModalOpen || !quoteDetails || !!quoteError}
           >
-            {isSubmitting || loadingQuote ? (
+           {isSubmitting ? (
               <motion.div 
                 animate={{ rotate: 360 }} 
                 transition={{ repeat: Infinity, duration: 1, ease: "linear" }} 
@@ -433,7 +477,7 @@ const Swap = () => {
             ) : (
               <RefreshCw className="h-5 w-5" />
             )}
-            {isSubmitting ? "Processing..." : loadingQuote ? "Getting Quote..." : "Swap"}
+           {isSubmitting ? "Processing..." : "Swap"}
           </Button>
         </div>
       </div>
