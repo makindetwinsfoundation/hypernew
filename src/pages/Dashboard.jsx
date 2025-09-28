@@ -181,7 +181,7 @@ const Dashboard = () => {
 
   const handleDragEnd = (event, info) => {
     const containerWidth = cardContentRef.current?.offsetWidth || 0;
-    const threshold = containerWidth * 0.3; // 30% of container width
+    const threshold = containerWidth * 0.1; // 10% of container width
     
     if (info.offset.x > threshold && currentPage === 1) {
       // Swipe right to go to crypto (page 0)
@@ -299,7 +299,7 @@ const Dashboard = () => {
                 right: 0,
               }}
               animate={controls}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              transition={{ type: "tween", duration: 0.2, ease: "easeOut" }}
             >
               {/* Crypto Balance Page */}
               <div className="flex-shrink-0 w-full">
