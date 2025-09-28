@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useMotionValue, useAnimation } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, ArrowDownLeft, RefreshCw, List, Search, Eye, EyeOff, ChevronDown, History, Repeat, Filter, Wallet, Bell, HelpCircle, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -80,6 +81,24 @@ const Dashboard = () => {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0); // 0 for crypto, 1 for fiat
+  const cardContentRef = useRef(null);
+  const x = useMotionValue(0);
+  const controls = useAnimation();
+
+  // Sample fiat balances
+  const fiatBalances = [
+    { code: "NGN", name: "Nigerian Naira", flag: "🇳🇬", balance: 125000, rate: 1200 },
+    { code: "ZAR", name: "South African Rand", flag: "🇿🇦", balance: 2500, rate: 18.5 },
+    { code: "GHS", name: "Ghanaian Cedi", flag: "🇬🇭", balance: 850, rate: 12.5 },
+    { code: "KES", name: "Kenyan Shilling", flag: "🇰🇪", balance: 15000, rate: 130 },
+  ];
+
+  const getTotalFiatBalance = () => {
+    return fiatBalances.reduce((total, fiat) => {
+      return total + (fiat.balance / fiat.rate);
+    }, 0);
+  };
 
   // Sample notifications data
   const notifications = [
@@ -147,6 +166,25 @@ const Dashboard = () => {
 
   // Calculate unread notifications count
   const unreadNotificationsCount = notifications.filter(n => !n.isRead).length;
+
+  const handleDragEnd = (event, info) => {
+    const containerWidth = cardContentRef.current?.offsetWidth || 0;
+    const threshold = containerWidth * 0.3; // 30% of container width
+    
+    if (info.offset.x > threshold && currentPage === 1) {
+      // Swipe right to go to crypto (page 0)
+      setCurrentPage(0);
+    } else if (info.offset.x < -threshold && currentPage === 0) {
+      // Swipe left to go to fiat (page 1)
+      setCurrentPage(1);
+    }
+  };
+
+  useEffect(() => {
+    const containerWidth = cardContentRef.current?.offsetWidth || 0;
+    const targetX = -currentPage * containerWidth;
+    controls.start({ x: targetX });
+  }, [currentPage, controls, cardContentRef.current?.offsetWidth]);
 
   const handleDepositClick = () => {
     setIsDepositModalOpen(true);
@@ -237,46 +275,140 @@ const Dashboard = () => {
       </motion.div>
       
       <motion.div variants={item} initial="hidden" animate="show">
-        <Card className="crypto-card border-none p-5 hover:shadow-lg transition-all duration-300">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Wallet size={16} />
-              <span>Wallet Balance</span>
-              <ChevronDown size={16} className="cursor-pointer hover:text-primary" />
-            </div>
-            <button 
-              onClick={() => setIsBalanceVisible(!isBalanceVisible)}
-              className="text-muted-foreground hover:text-primary transition-colors"
+        <Card className="crypto-card border-none hover:shadow-lg transition-all duration-300">
+          <CardContent ref={cardContentRef} className="p-5 overflow-hidden">
+            <motion.div
+              className="flex"
+              drag="x"
+              style={{ x }}
+              onDragEnd={handleDragEnd}
+              dragConstraints={{
+                left: -(cardContentRef.current?.offsetWidth || 0),
+                right: 0,
+              }}
+              animate={controls}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-              {isBalanceVisible ? <Eye size={16} /> : <EyeOff size={16} />}
-            </button>
-          </div>
-          {loadingBalances ? (
-            <div className="flex items-center gap-2 mb-1">
-              <div className="h-10 w-32 bg-muted animate-pulse rounded"></div>
-            </div>
-          ) : (
-            <h1 className="text-4xl font-bold mb-1">
-              {isBalanceVisible ? `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
-            </h1>
-          )}
-          <div className="flex items-center text-xs mb-3">
-            <span className={cn(simulatedDailyChange >= 0 ? "text-green-500" : "text-red-500")}>
-              {isBalanceVisible ? 
-                `${simulatedDailyChange >= 0 ? "+" : ""}$${Math.abs(simulatedDailyChange).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${simulatedDailyPercent.toFixed(2)}%) 1D` : 
-                '******** 1D'
-              }
-            </span>
+              {/* Crypto Balance Page */}
+              <div className="flex-shrink-0 w-full">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Wallet size={16} />
+                    <span>Crypto Balance</span>
+                    <ChevronDown size={16} className="cursor-pointer hover:text-primary" />
+                  </div>
+                  <button 
+                    onClick={() => setIsBalanceVisible(!isBalanceVisible)}
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {isBalanceVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+                  </button>
+                </div>
+                {loadingBalances ? (
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="h-10 w-32 bg-muted animate-pulse rounded"></div>
+                  </div>
+                ) : (
+                  <h1 className="text-4xl font-bold mb-1">
+                    {isBalanceVisible ? `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
+                  </h1>
+                )}
+                <div className="flex items-center text-xs mb-3">
+                  <span className={cn(simulatedDailyChange >= 0 ? "text-green-500" : "text-red-500")}>
+                    {isBalanceVisible ? 
+                      `${simulatedDailyChange >= 0 ? "+" : ""}$${Math.abs(simulatedDailyChange).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${simulatedDailyPercent.toFixed(2)}%) 1D` : 
+                      '******** 1D'
+                    }
+                  </span>
+                </div>
+              </div>
+
+              {/* Fiat Balance Page */}
+              <div className="flex-shrink-0 w-full pl-4">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Wallet size={16} />
+                    <span>Fiat Balance</span>
+                    <ChevronDown size={16} className="cursor-pointer hover:text-primary" />
+                  </div>
+                  <button 
+                    onClick={() => setIsBalanceVisible(!isBalanceVisible)}
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {isBalanceVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+                  </button>
+                </div>
+                <h1 className="text-4xl font-bold mb-1">
+                  {isBalanceVisible ? `$${getTotalFiatBalance().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
+                </h1>
+                <div className="flex items-center text-xs mb-3">
+                  <span className="text-green-500">
+                    {isBalanceVisible ? '+$125.50 (2.1%) 1D' : '******** 1D'}
+                  </span>
+                </div>
+                
+                {/* Fiat Currency List */}
+                <div className="space-y-2 mt-4">
+                  {fiatBalances.map((fiat) => (
+                    <div key={fiat.code} className="flex items-center justify-between py-2">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{fiat.flag}</span>
+                        <div>
+                          <p className="font-medium text-sm">{fiat.code}</p>
+                          <p className="text-xs text-muted-foreground">{fiat.name}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-sm">
+                          {isBalanceVisible ? fiat.balance.toLocaleString() : '****'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {isBalanceVisible ? `$${(fiat.balance / fiat.rate).toFixed(2)}` : '****'}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </CardContent>
+          
+          {/* Page Indicators */}
+          <div className="flex justify-center gap-2 pb-4">
+            {[0, 1].map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={cn(
+                  "w-2 h-2 rounded-full transition-colors duration-200",
+                  currentPage === page ? "bg-primary" : "bg-muted-foreground/30"
+                )}
+              />
+            ))}
           </div>
           
-          <div className="flex flex-row items-center justify-between md:flex-col md:items-start mt-4">
-            <Button
-              onClick={handleDepositClick}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98]"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Deposit
-            </Button>
+          <div className="px-5 pb-5">
+            <div className="flex flex-row items-center justify-between md:flex-col md:items-start">
+              <Button
+                onClick={handleDepositClick}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98]"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Deposit
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+
+      <motion.div variants={item} initial="hidden" animate="show">
+        <Card className="crypto-card border-none p-5 hover:shadow-lg transition-all duration-300">
+          <div className="flex items-center justify-between mb-1">
+            <div>
+              <p className="font-semibold text-sm">Check $NEW_COIN airdrop!</p>
+              <p className="text-xs text-muted-foreground">Exclusively on YourWallet.</p>
+            </div>
+            <Button variant="link" size="sm" className="text-primary p-0 h-auto">Check <ArrowUpRight size={14} className="ml-1"/></Button>
           </div>
         </Card>
       </motion.div>
@@ -293,18 +425,6 @@ const Dashboard = () => {
         <ActionButton icon={History} label="History" onClick={() => navigate("/history")} />
       </motion.div>
       
-      <motion.div variants={item} initial="hidden" animate="show">
-        <Card className="crypto-card border-none p-4 hover:shadow-md transition-all duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-semibold text-sm">Check $NEW_COIN airdrop!</p>
-              <p className="text-xs text-muted-foreground">Exclusively on YourWallet.</p>
-            </div>
-            <Button variant="link" size="sm" className="text-primary p-0 h-auto">Check <ArrowUpRight size={14} className="ml-1"/></Button>
-          </div>
-        </Card>
-      </motion.div>
-
       <motion.div variants={item} initial="hidden" animate="show">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 bg-card crypto-card border-none">
