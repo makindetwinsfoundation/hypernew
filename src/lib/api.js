@@ -29,8 +29,26 @@ export const apiRequest = async (endpoint, options = {}, baseUrl = API_BASE_URL)
     const response = await fetch(url, config);
     console.log('API response received:', { status: response.status, ok: response.ok });
     
-    const data = await response.json();
-    console.log('API response data:', data);
+    // Check if response is JSON before parsing
+    const contentType = response.headers.get('content-type');
+    let data;
+    
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+      console.log('API response data:', data);
+    } else {
+      // If not JSON, read as text for better error reporting
+      const textResponse = await response.text();
+      console.log('Non-JSON response received:', textResponse.substring(0, 200) + '...');
+      
+      // Try to extract meaningful error message from HTML or text
+      let errorMessage = `Server returned non-JSON response (${response.status})`;
+      if (textResponse.includes('<!DOCTYPE')) {
+        errorMessage = `Server returned HTML page instead of JSON (${response.status}). The API endpoint may be unavailable.`;
+      }
+      
+      throw new Error(errorMessage);
+    }
 
     if (!response.ok) {
       // Handle token expiration
