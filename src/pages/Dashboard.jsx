@@ -338,7 +338,6 @@ const Dashboard = () => {
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <Wallet size={16} />
-                    <span>Fiat Balance</span>
                     <Select value={selectedFiatCurrency} onValueChange={setSelectedFiatCurrency}>
                       <SelectTrigger className="h-6 w-auto border-none bg-transparent p-0 text-sm text-muted-foreground hover:text-primary focus:ring-0">
                         <SelectValue />
