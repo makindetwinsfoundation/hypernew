@@ -6,6 +6,7 @@ import { ArrowUpRight, ArrowDownLeft, RefreshCw, List, Search, Eye, EyeOff, Chev
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CryptoIcon } from "@/components/crypto/CryptoIcon";
 import { useWallet } from "@/context/WalletContext";
 import { cn } from "@/lib/utils";
@@ -82,6 +83,7 @@ const Dashboard = () => {
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0); // 0 for crypto, 1 for fiat
+  const [selectedFiatCurrency, setSelectedFiatCurrency] = useState("NGN");
   const cardContentRef = useRef(null);
   const x = useMotionValue(0);
   const controls = useAnimation();
@@ -338,37 +340,66 @@ const Dashboard = () => {
                     {isBalanceVisible ? <Eye size={16} /> : <EyeOff size={16} />}
                   </button>
                 </div>
-                <h1 className="text-4xl font-bold mb-1">
-                  {isBalanceVisible ? `$${getTotalFiatBalance().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
-                </h1>
-                <div className="flex items-center text-xs mb-3">
-                  <span className="text-green-500">
-                    {isBalanceVisible ? '+$125.50 (2.1%) 1D' : '******** 1D'}
-                  </span>
-                </div>
                 
-                {/* Fiat Currency List */}
-                <div className="space-y-2 mt-4">
-                  {fiatBalances.map((fiat) => (
-                    <div key={fiat.code} className="flex items-center justify-between py-2">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{fiat.flag}</span>
-                        <div>
-                          <p className="font-medium text-sm">{fiat.code}</p>
-                          <p className="text-xs text-muted-foreground">{fiat.name}</p>
+                {/* Selected Fiat Currency Display */}
+                {(() => {
+                  const selectedFiat = fiatBalances.find(f => f.code === selectedFiatCurrency);
+                  return (
+                    <>
+                      <h1 className="text-4xl font-bold mb-1">
+                        {isBalanceVisible ? `$${(selectedFiat.balance / selectedFiat.rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
+                      </h1>
+                      <div className="flex items-center text-xs mb-3">
+                        <span className="text-green-500">
+                          {isBalanceVisible ? `+$12.50 (2.1%) 1D` : '******** 1D'}
+                        </span>
+                      </div>
+                      
+                      {/* Fiat Currency Selector */}
+                      <div className="space-y-3 mt-4">
+                        <Select value={selectedFiatCurrency} onValueChange={setSelectedFiatCurrency}>
+                          <SelectTrigger className="h-12 bg-background/50 border-border/50 rounded-lg">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {fiatBalances.map((fiat) => (
+                              <SelectItem key={fiat.code} value={fiat.code}>
+                                <div className="flex items-center gap-3 py-1">
+                                  <span className="text-xl">{fiat.flag}</span>
+                                  <div>
+                                    <p className="font-medium text-sm">{fiat.code}</p>
+                                    <p className="text-xs text-muted-foreground">{fiat.name}</p>
+                                  </div>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        
+                        {/* Selected Currency Details */}
+                        <div className="bg-card/50 rounded-lg p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <span className="text-3xl">{selectedFiat.flag}</span>
+                              <div>
+                                <p className="font-semibold text-lg">{selectedFiat.code}</p>
+                                <p className="text-sm text-muted-foreground">{selectedFiat.name}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-bold text-xl">
+                                {isBalanceVisible ? selectedFiat.balance.toLocaleString() : '****'}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {isBalanceVisible ? `≈ $${(selectedFiat.balance / selectedFiat.rate).toFixed(2)}` : '****'}
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-medium text-sm">
-                          {isBalanceVisible ? fiat.balance.toLocaleString() : '****'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {isBalanceVisible ? `$${(fiat.balance / fiat.rate).toFixed(2)}` : '****'}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    </>
+                  );
+                })()}
               </div>
             </motion.div>
           </CardContent>
