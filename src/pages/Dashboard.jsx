@@ -341,7 +341,6 @@ const Dashboard = () => {
                     <Select value={selectedFiatCurrency} onValueChange={setSelectedFiatCurrency}>
                       <SelectTrigger className="h-6 w-auto border-none bg-transparent p-0 text-sm text-muted-foreground hover:text-primary focus:ring-0">
                         <SelectValue />
-                        <ChevronDown className="h-3 w-3 ml-1" />
                       </SelectTrigger>
                       <SelectContent>
                         {fiatBalances.map((fiat) => (
