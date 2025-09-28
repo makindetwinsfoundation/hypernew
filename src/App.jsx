@@ -11,6 +11,10 @@ import Settings from "@/pages/Settings";
 import HistoryPage from "@/pages/HistoryPage";
 import InternalTransfer from "@/pages/InternalTransfer";
 import ExplorerPage from "@/pages/ExplorerPage";
+import InternalFiatTransfer from "@/pages/InternalFiatTransfer";
+import SendFiat from "@/pages/SendFiat";
+import BillPayments from "@/pages/BillPayments";
+import FiatConvert from "@/pages/FiatConvert";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
 import PasswordReset from "@/components/auth/PasswordReset";
@@ -74,6 +78,10 @@ const AppContent = () => {
                       <Route path="/receive" element={<Receive />} />
                       <Route path="/swap" element={<Swap />} />
                       <Route path="/convert" element={<Convert />} />
+                      <Route path="/internal-fiat-transfer" element={<InternalFiatTransfer />} />
+                      <Route path="/send-fiat" element={<SendFiat />} />
+                      <Route path="/bill-payments" element={<BillPayments />} />
+                      <Route path="/fiat-convert" element={<FiatConvert />} />
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/history" element={<HistoryPage />} />
                       <Route path="/explorer" element={<ExplorerPage />} />

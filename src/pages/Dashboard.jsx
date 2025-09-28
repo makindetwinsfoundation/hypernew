@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useMotionValue, useAnimation } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, ArrowDownLeft, RefreshCw, List, Search, Eye, EyeOff, ChevronDown, History, Repeat, Filter, Wallet, Bell, HelpCircle, Plus } from 'lucide-react';
+import { Users, Building2, Receipt, ArrowRightLeft } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -399,15 +400,48 @@ const Dashboard = () => {
           </div>
           
           <div className="px-5 pb-5">
-            <div className="flex flex-row items-center justify-between md:flex-col md:items-start">
-              <Button
-                onClick={handleDepositClick}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98]"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Deposit
-              </Button>
-            </div>
+            {currentPage === 0 ? (
+              <div className="flex flex-row items-center justify-between md:flex-col md:items-start">
+                <Button
+                  onClick={handleDepositClick}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98]"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Deposit
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  onClick={() => navigate("/internal-fiat-transfer")}
+                  className="h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  <Users className="h-4 w-4" />
+                  To HyperX
+                </Button>
+                <Button
+                  onClick={() => navigate("/send-fiat")}
+                  className="h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  <Building2 className="h-4 w-4" />
+                  Send
+                </Button>
+                <Button
+                  onClick={() => navigate("/bill-payments")}
+                  className="h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  <Receipt className="h-4 w-4" />
+                  Bill
+                </Button>
+                <Button
+                  onClick={() => navigate("/fiat-convert")}
+                  className="h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  <ArrowRightLeft className="h-4 w-4" />
+                  Convert
+                </Button>
+              </div>
+            )}
           </div>
         </Card>
       </motion.div>
