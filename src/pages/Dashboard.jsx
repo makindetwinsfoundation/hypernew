@@ -102,6 +102,11 @@ const Dashboard = () => {
     }, 0);
   };
 
+  const getNGNBalance = () => {
+    const ngnFiat = fiatBalances.find(fiat => fiat.code === "NGN");
+    return ngnFiat ? ngnFiat.balance : 0;
+  };
+
   // Sample notifications data
   const notifications = [
     {
