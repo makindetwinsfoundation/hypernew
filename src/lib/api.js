@@ -221,9 +221,9 @@ export const walletAPI = {
     apiRequest('/v1/wallet/swap/quote', {
       method: 'POST',
       body: JSON.stringify({ 
-        tokenIn: fromCurrency, 
-        tokenOut: toCurrency, 
-        amountIn: amount 
+        fromCurrency: fromCurrency, 
+        toCurrency: toCurrency, 
+        fromAmount: amount 
       }),
     }, WALLET_API_BASE_URL),
 
@@ -231,9 +231,9 @@ export const walletAPI = {
     apiRequest('/v1/wallet/swap/execute', {
       method: 'POST',
       body: JSON.stringify({ 
-        tokenIn: fromCurrency, 
-        tokenOut: toCurrency, 
-        amountIn: amount,
+        fromCurrency: fromCurrency, 
+        toCurrency: toCurrency, 
+        fromAmount: amount,
         quoteId 
       }),
     }, WALLET_API_BASE_URL),
