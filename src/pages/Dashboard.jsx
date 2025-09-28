@@ -297,7 +297,6 @@ const Dashboard = () => {
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Wallet size={16} />
                     <span>Crypto Balance</span>
-                    <ChevronDown size={16} className="cursor-pointer hover:text-primary" />
                   </div>
                   <button 
                     onClick={() => setIsBalanceVisible(!isBalanceVisible)}
@@ -331,7 +330,6 @@ const Dashboard = () => {
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Wallet size={16} />
                     <span>Fiat Balance</span>
-                    <ChevronDown size={16} className="cursor-pointer hover:text-primary" />
                   </div>
                   <button 
                     onClick={() => setIsBalanceVisible(!isBalanceVisible)}
@@ -341,65 +339,23 @@ const Dashboard = () => {
                   </button>
                 </div>
                 
-                {/* Selected Fiat Currency Display */}
-                {(() => {
-                  const selectedFiat = fiatBalances.find(f => f.code === selectedFiatCurrency);
-                  return (
-                    <>
-                      <h1 className="text-4xl font-bold mb-1">
-                        {isBalanceVisible ? `$${(selectedFiat.balance / selectedFiat.rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
-                      </h1>
-                      <div className="flex items-center text-xs mb-3">
-                        <span className="text-green-500">
-                          {isBalanceVisible ? `+$12.50 (2.1%) 1D` : '******** 1D'}
-                        </span>
-                      </div>
-                      
-                      {/* Fiat Currency Selector */}
-                      <div className="space-y-3 mt-4">
-                        <Select value={selectedFiatCurrency} onValueChange={setSelectedFiatCurrency}>
-                          <SelectTrigger className="h-12 bg-background/50 border-border/50 rounded-lg">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {fiatBalances.map((fiat) => (
-                              <SelectItem key={fiat.code} value={fiat.code}>
-                                <div className="flex items-center gap-3 py-1">
-                                  <span className="text-xl">{fiat.flag}</span>
-                                  <div>
-                                    <p className="font-medium text-sm">{fiat.code}</p>
-                                    <p className="text-xs text-muted-foreground">{fiat.name}</p>
-                                  </div>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        
-                        {/* Selected Currency Details */}
-                        <div className="bg-card/50 rounded-lg p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <span className="text-3xl">{selectedFiat.flag}</span>
-                              <div>
-                                <p className="font-semibold text-lg">{selectedFiat.code}</p>
-                                <p className="text-sm text-muted-foreground">{selectedFiat.name}</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-bold text-xl">
-                                {isBalanceVisible ? selectedFiat.balance.toLocaleString() : '****'}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {isBalanceVisible ? `≈ $${(selectedFiat.balance / selectedFiat.rate).toFixed(2)}` : '****'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  );
-                })()}
+                {loadingBalances ? (
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="h-10 w-32 bg-muted animate-pulse rounded"></div>
+                  </div>
+                ) : (
+                  <h1 className="text-4xl font-bold mb-1">
+                    {isBalanceVisible ? `₦${getNGNBalance().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
+                  </h1>
+                )}
+                <div className="flex items-center text-xs mb-3">
+                  <span className="text-green-500">
+                    {isBalanceVisible ? 
+                      `+₦15,250.00 (2.1%) 1D` : 
+                      '******** 1D'
+                    }
+                  </span>
+                </div>
               </div>
             </motion.div>
           </CardContent>
