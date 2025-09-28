@@ -102,9 +102,13 @@ const Dashboard = () => {
     }, 0);
   };
 
-  const getNGNBalance = () => {
-    const ngnFiat = fiatBalances.find(fiat => fiat.code === "NGN");
-    return ngnFiat ? ngnFiat.balance : 0;
+  const getSelectedFiatBalance = () => {
+    const selectedFiat = fiatBalances.find(fiat => fiat.code === selectedFiatCurrency);
+    return selectedFiat ? selectedFiat.balance : 0;
+  };
+
+  const getSelectedFiatData = () => {
+    return fiatBalances.find(fiat => fiat.code === selectedFiatCurrency);
   };
 
   // Sample notifications data
@@ -332,9 +336,26 @@ const Dashboard = () => {
               {/* Fiat Balance Page */}
               <div className="flex-shrink-0 w-full pl-4">
                 <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <Wallet size={16} />
                     <span>Fiat Balance</span>
+                    <Select value={selectedFiatCurrency} onValueChange={setSelectedFiatCurrency}>
+                      <SelectTrigger className="h-6 w-auto border-none bg-transparent p-0 text-sm text-muted-foreground hover:text-primary focus:ring-0">
+                        <SelectValue />
+                        <ChevronDown className="h-3 w-3 ml-1" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {fiatBalances.map((fiat) => (
+                          <SelectItem key={fiat.code} value={fiat.code}>
+                            <div className="flex items-center gap-2">
+                              <span className="text-base">{fiat.flag}</span>
+                              <span className="font-medium">{fiat.code}</span>
+                              <span className="text-xs text-muted-foreground">- {fiat.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <button 
                     onClick={() => setIsBalanceVisible(!isBalanceVisible)}
@@ -350,13 +371,13 @@ const Dashboard = () => {
                   </div>
                 ) : (
                   <h1 className="text-4xl font-bold mb-1">
-                    {isBalanceVisible ? `₦${getNGNBalance().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
+                    {isBalanceVisible ? `${getSelectedFiatData()?.code === 'NGN' ? '₦' : getSelectedFiatData()?.code === 'ZAR' ? 'R' : getSelectedFiatData()?.code === 'GHS' ? '₵' : 'KSh'}${getSelectedFiatBalance().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
                   </h1>
                 )}
                 <div className="flex items-center text-xs mb-3">
                   <span className="text-green-500">
                     {isBalanceVisible ? 
-                      `+₦15,250.00 (2.1%) 1D` : 
+                      `+${getSelectedFiatData()?.code === 'NGN' ? '₦' : getSelectedFiatData()?.code === 'ZAR' ? 'R' : getSelectedFiatData()?.code === 'GHS' ? '₵' : 'KSh'}${(getSelectedFiatBalance() * 0.021).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (2.1%) 1D` : 
                       '******** 1D'
                     }
                   </span>
