@@ -335,7 +335,7 @@ const Dashboard = () => {
               </div>
 
               {/* Fiat Balance Page */}
-              <div className="flex-shrink-0 w-full pl-4">
+              <div className="flex-shrink-0 w-full">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <Wallet size={16} />
