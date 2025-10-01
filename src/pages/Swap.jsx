@@ -183,8 +183,8 @@ const Swap = () => {
       
       const result = await walletAPI.executeSwap(
         user.id,
-        fromCryptoData.symbol.toUpperCase(),
-        toCryptoData.symbol.toUpperCase(),
+        fromCryptoData.id.toUpperCase(),
+        toCryptoData.id.toUpperCase(),
         pendingTransaction.amount.toString(),
         pendingTransaction.quote.quoteId
       );
