@@ -70,7 +70,7 @@ const Swap = () => {
         );
 
         if (quote && quote.success) {
-          setQuoteDetails(quote.data);
+          setQuoteDetails(quote.quote);
         } else {
           setQuoteDetails(null);
           setQuoteError("Unable to get quote");
