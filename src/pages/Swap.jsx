@@ -8,12 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CryptoIcon } from "@/components/crypto/CryptoIcon";
 import { useWallet } from "@/context/WalletContext";
+import { useAuth } from "@/context/AuthContext";
 import { walletAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import PinConfirmationModal from "@/components/modals/PinConfirmationModal";
 
 const Swap = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { cryptos, convertCrypto, fetchWalletBalances, fetchTransactions } = useWallet();
   const { toast } = useToast();
   
@@ -166,6 +168,7 @@ const Swap = () => {
       const toCryptoData = cryptos.find((c) => c.id === pendingTransaction.toCrypto);
       
       const result = await walletAPI.executeSwap(
+        user.id,
         fromCryptoData.symbol.toUpperCase(),
         toCryptoData.symbol.toUpperCase(),
         pendingTransaction.amount.toString(),
