@@ -164,8 +164,21 @@ const Swap = () => {
     setIsSubmitting(true);
     
     try {
+      // Ensure wallet balances are up to date before attempting swap
+      await fetchWalletBalances();
+      
       const fromCryptoData = cryptos.find((c) => c.id === pendingTransaction.fromCrypto);
       const toCryptoData = cryptos.find((c) => c.id === pendingTransaction.toCrypto);
+      
+      // Verify that both cryptocurrencies exist in the user's wallet
+      if (!fromCryptoData || !toCryptoData) {
+        toast({
+          title: "Wallet Error",
+          description: "One or both cryptocurrencies not found in your wallet. Please refresh and try again.",
+          variant: "destructive",
+        });
+        return;
+      }
       
       const result = await walletAPI.executeSwap(
         user.id,
