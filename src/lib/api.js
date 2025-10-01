@@ -231,6 +231,7 @@ export const walletAPI = {
     apiRequest('/v1/wallet/swap/execute', {
       method: 'POST',
       body: JSON.stringify({ 
+        userId,
         fromCurrency: fromCurrency, 
         toCurrency: toCurrency, 
         fromAmount: amount,
