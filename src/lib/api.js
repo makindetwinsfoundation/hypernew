@@ -227,7 +227,7 @@ export const walletAPI = {
       }),
     }, WALLET_API_BASE_URL),
 
-  executeSwap: (fromCurrency, toCurrency, amount, quoteId) => 
+  executeSwap: (userId, fromCurrency, toCurrency, amount, quoteId) => 
     apiRequest('/v1/wallet/swap/execute', {
       method: 'POST',
       body: JSON.stringify({ 
