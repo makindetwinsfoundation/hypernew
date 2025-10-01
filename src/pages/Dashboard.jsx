@@ -25,10 +25,10 @@ const ActionButton = ({ icon: Icon, label, onClick, className }) => (
     <Button
       variant="outline"
       size="icon"
-      className={cn("bg-card hover:bg-muted/80 border-border/50 rounded-full w-14 h-14", className)}
+      className={cn("bg-card hover:bg-muted/80 border-border/50 rounded-full w-12 h-12", className)}
       onClick={onClick}
     >
-      <Icon className="h-6 w-6 text-primary" />
+      <Icon className="h-5 w-5 text-primary" />
     </Button>
     <span className="text-xs text-muted-foreground">{label}</span>
   </motion.div>
