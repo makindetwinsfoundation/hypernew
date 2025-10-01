@@ -411,35 +411,11 @@ const Dashboard = () => {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  onClick={() => navigate("/internal-fiat-transfer")}
-                  className="h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
-                >
-                  <Users className="h-4 w-4" />
-                  To HyperX
-                </Button>
-                <Button
-                  onClick={() => navigate("/send-fiat")}
-                  className="h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
-                >
-                  <Building2 className="h-4 w-4" />
-                  Send
-                </Button>
-                <Button
-                  onClick={() => navigate("/bill-payments")}
-                  className="h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
-                >
-                  <Receipt className="h-4 w-4" />
-                  Bill
-                </Button>
-                <Button
-                  onClick={() => navigate("/fiat-convert")}
-                  className="h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
-                >
-                  <ArrowRightLeft className="h-4 w-4" />
-                  Convert
-                </Button>
+              <div className="grid grid-cols-4 gap-x-2 gap-y-4 items-start justify-items-center px-2 py-4">
+                <ActionButton icon={Users} label="To HyperX" onClick={() => navigate("/internal-fiat-transfer")} />
+                <ActionButton icon={Building2} label="Send" onClick={() => navigate("/send-fiat")} />
+                <ActionButton icon={Receipt} label="Bill" onClick={() => navigate("/bill-payments")} />
+                <ActionButton icon={ArrowRightLeft} label="Convert" onClick={() => navigate("/fiat-convert")} />
               </div>
             )}
           </div>
