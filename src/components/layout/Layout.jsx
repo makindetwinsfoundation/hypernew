@@ -7,7 +7,8 @@ import {
   Download, 
   RefreshCw, 
   Settings as SettingsIcon, 
-  Menu, 
+  Menu,
+  SquareDot,
   X,
   Bitcoin,
   Wallet,
@@ -73,7 +74,7 @@ const Layout = ({ children }) => {
             onClick={toggleMobileMenu}
             className="md:hidden"
           >
-            {isMobileMenuOpen ? <X /> : <Menu />}
+            {isMobileMenuOpen ? <X /> : <SquareDot />}
           </Button>
         )}
         </header>
