@@ -180,6 +180,19 @@ const Swap = () => {
         return;
       }
       
+      // Defensive check for walletAPI.executeSwap
+      if (!walletAPI || typeof walletAPI.executeSwap !== 'function') {
+        console.error('walletAPI.executeSwap is not available:', walletAPI);
+        toast({
+          title: "Service Unavailable",
+          description: "Swap functionality is currently unavailable. Please try again later.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        setPendingTransaction(null);
+        return;
+      }
+      
       const result = await walletAPI.executeSwap(
         user.id,
         fromCryptoData.symbol.toUpperCase(),
