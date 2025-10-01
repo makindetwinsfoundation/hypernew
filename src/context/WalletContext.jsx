@@ -545,6 +545,7 @@ export const WalletProvider = ({ children }) => {
         loadingTransactions,
         transactions,
         fetchTransactions,
+        fetchWalletBalances,
         getTotalBalance,
         getWalletBalance,
         sendCrypto,
