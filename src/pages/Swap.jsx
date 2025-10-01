@@ -196,7 +196,7 @@ const Swap = () => {
       } else {
         toast({
           title: "Swap Failed",
-          description: result?.message || "Failed to execute swap. Please try again.",
+          description: result?.error || result?.message || "Failed to execute swap. Please try again.",
           variant: "destructive",
         });
       }
