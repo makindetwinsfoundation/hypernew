@@ -8,7 +8,7 @@ import {
   RefreshCw, 
   Settings as SettingsIcon, 
   Menu,
-  SquareDot,
+  MoreVertical,
   X,
   Bitcoin,
   Wallet,
@@ -74,7 +74,7 @@ const Layout = ({ children }) => {
             onClick={toggleMobileMenu}
             className="md:hidden"
           >
-            {isMobileMenuOpen ? <X /> : <SquareDot />}
+            {isMobileMenuOpen ? <X /> : <MoreVertical />}
           </Button>
         )}
         </header>
