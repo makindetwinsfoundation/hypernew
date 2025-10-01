@@ -172,25 +172,13 @@ const Swap = () => {
       
       // Verify that both cryptocurrencies exist in the user's wallet
       if (!fromCryptoData || !toCryptoData) {
-        toast({
-          title: "Wallet Error",
-          description: "One or both cryptocurrencies not found in your wallet. Please refresh and try again.",
-          variant: "destructive",
-        });
-        return;
+        throw new Error("One or both cryptocurrencies not found in your wallet. Please refresh and try again.");
       }
       
       // Defensive check for walletAPI.executeSwap
       if (!walletAPI || typeof walletAPI.executeSwap !== 'function') {
         console.error('walletAPI.executeSwap is not available:', walletAPI);
-        toast({
-          title: "Service Unavailable",
-          description: "Swap functionality is currently unavailable. Please try again later.",
-          variant: "destructive",
-        });
-        setIsSubmitting(false);
-        setPendingTransaction(null);
-        return;
+        throw new Error("Swap functionality is currently unavailable. Please try again later.");
       }
       
       const result = await walletAPI.executeSwap(
@@ -222,14 +210,14 @@ const Swap = () => {
       } else {
         toast({
           title: "Swap Failed",
-          description: result?.error || result?.message || "Failed to execute swap. Please try again.",
+          description: result?.error || result?.message || "The swap could not be completed due to a server error. Please check your balance and try again.",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error('Swap execution error:', error);
       toast({
-        title: "Swap Failed",
+        title: "Swap Error",
         description: error.message || "Network error. Please try again.",
         variant: "destructive",
       });
