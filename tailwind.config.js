@@ -10,8 +10,17 @@ module.exports = {
 	theme: {
 		container: {
 			center: true,
-			padding: '2rem',
+			padding: {
+				DEFAULT: '1rem',
+				sm: '1.5rem',
+				lg: '2rem',
+				xl: '2rem',
+			},
 			screens: {
+				sm: '640px',
+				md: '768px',
+				lg: '1024px',
+				xl: '1280px',
 				'2xl': '1400px',
 			},
 		},
@@ -19,6 +28,8 @@ module.exports = {
 			boxShadow: {
 				'soft': '0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
 				'soft-lg': '0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.1)',
+				'mobile': '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
+				'mobile-lg': '0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06)',
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -54,11 +65,24 @@ module.exports = {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))',
 				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)',
+				xl: 'calc(var(--radius) + 4px)',
+				'2xl': 'calc(var(--radius) + 8px)',
+				'3xl': 'calc(var(--radius) + 12px)',
+			},
+			spacing: {
+				'safe-bottom': 'env(safe-area-inset-bottom)',
+				'safe-top': 'env(safe-area-inset-top)',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -69,10 +93,30 @@ module.exports = {
 					from: { height: 'var(--radix-accordion-content-height)' },
 					to: { height: 0 },
 				},
+				'slide-up': {
+					from: { transform: 'translateY(100%)' },
+					to: { transform: 'translateY(0)' },
+				},
+				'slide-down': {
+					from: { transform: 'translateY(-100%)' },
+					to: { transform: 'translateY(0)' },
+				},
+				'fade-in': {
+					from: { opacity: 0 },
+					to: { opacity: 1 },
+				},
+				'scale-in': {
+					from: { transform: 'scale(0.95)', opacity: 0 },
+					to: { transform: 'scale(1)', opacity: 1 },
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
+				'slide-up': 'slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+				'slide-down': 'slide-down 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+				'fade-in': 'fade-in 0.2s ease-in',
+				'scale-in': 'scale-in 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
 			},
 		},
 	},

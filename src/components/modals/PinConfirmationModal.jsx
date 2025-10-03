@@ -194,7 +194,6 @@ const PinConfirmationModal = ({ isOpen, onClose, onConfirm, transactionType = "t
           />
           
           <motion.div
-            className="relative w-full max-w-sm bg-card rounded-t-2xl border border-border/50 shadow-2xl max-h-[70vh] overflow-y-auto"
             className="relative w-full max-w-sm bg-card rounded-t-2xl border border-border/50 shadow-2xl max-h-[85vh] overflow-y-auto"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
