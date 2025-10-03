@@ -15,6 +15,7 @@ import InternalFiatTransfer from "@/pages/InternalFiatTransfer";
 import SendFiat from "@/pages/SendFiat";
 import BillPayments from "@/pages/BillPayments";
 import FiatConvert from "@/pages/FiatConvert";
+import AssetChart from "@/pages/AssetChart";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
 import PasswordReset from "@/components/auth/PasswordReset";
@@ -82,10 +83,7 @@ const AppContent = () => {
                       <Route path="/send-fiat" element={<SendFiat />} />
                       <Route path="/bill-payments" element={<BillPayments />} />
                       <Route path="/fiat-convert" element={<FiatConvert />} />
-                      <Route path="/internal-fiat-transfer" element={<InternalFiatTransfer />} />
-                      <Route path="/send-fiat" element={<SendFiat />} />
-                      <Route path="/bill-payments" element={<BillPayments />} />
-                      <Route path="/fiat-convert" element={<FiatConvert />} />
+                      <Route path="/asset-chart" element={<AssetChart />} />
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/history" element={<HistoryPage />} />
                       <Route path="/explorer" element={<ExplorerPage />} />

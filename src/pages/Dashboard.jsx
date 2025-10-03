@@ -503,10 +503,10 @@ const Dashboard = () => {
                 ) : filteredCryptos.length > 0 ? (
                   <div className="space-y-1">
                     {filteredCryptos.map((crypto) => (
-                      <AssetRowNew 
-                        key={crypto.id} 
-                        crypto={crypto} 
-                        onClick={handleSendClick}
+                      <AssetRowNew
+                        key={crypto.id}
+                        crypto={crypto}
+                        onClick={() => navigate("/asset-chart", { state: { crypto } })}
                         isBalanceVisible={isBalanceVisible}
                       />
                     ))}

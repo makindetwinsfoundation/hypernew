@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Camera, AlertCircle, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { QrReader } from "react-qr-reader";
 import { useToast } from "@/components/ui/use-toast";
 
 const QrScannerModal = ({ isOpen, onClose, onScan }) => {
@@ -89,46 +88,21 @@ const QrScannerModal = ({ isOpen, onClose, onScan }) => {
               </CardHeader>
               
               <CardContent className="p-0">
-                {/* QR Scanner */}
-                <div className="relative aspect-square bg-black">
-                  {isScanning && (
-                    <QrReader
-                      onResult={handleResult}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                      }}
-                      constraints={{
-                        facingMode: 'environment' // Use back camera
-                      }}
-                      videoStyle={{
-                        objectFit: 'cover',
-                        width: '100%',
-                        height: '100%',
-                      }}
-                    />
-                  )}
-                  
+                {/* QR Scanner Placeholder */}
+                <div className="relative aspect-square bg-black flex items-center justify-center">
+                  <div className="text-center p-8">
+                    <Camera className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-white text-sm">QR Scanner requires camera access</p>
+                    <p className="text-muted-foreground text-xs mt-2">Feature temporarily unavailable</p>
+                  </div>
+
                   {/* Scanning overlay */}
                   <div className="absolute inset-0 pointer-events-none">
                     {/* Corner brackets */}
-                    <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-primary"></div>
-                    <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-primary"></div>
-                    <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-primary"></div>
-                    <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-primary"></div>
-                    
-                    {/* Scanning line animation */}
-                    <motion.div
-                      className="absolute left-4 right-4 h-0.5 bg-primary shadow-lg"
-                      animate={{
-                        y: [16, 'calc(100% - 16px)', 16],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "linear",
-                      }}
-                    />
+                    <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-primary opacity-30"></div>
+                    <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-primary opacity-30"></div>
+                    <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-primary opacity-30"></div>
+                    <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-primary opacity-30"></div>
                   </div>
                 </div>
 
