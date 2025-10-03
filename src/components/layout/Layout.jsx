@@ -70,7 +70,36 @@ const Layout = ({ children }) => {
     console.log('Help clicked');
   };
 
-  const notifications = [];
+  const notifications = [
+    {
+      id: 1,
+      type: "deposit",
+      title: "Deposit Received",
+      message: "Your Bitcoin deposit has been confirmed and added to your wallet.",
+      timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+      isRead: false,
+      amount: "0.00125",
+      currency: "BTC"
+    },
+    {
+      id: 2,
+      type: "promotion",
+      title: "Special Offer: 0% Trading Fees",
+      message: "Trade with zero fees for the next 24 hours! Limited time offer for premium users.",
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+      isRead: false
+    },
+    {
+      id: 3,
+      type: "security",
+      title: "New Login Detected",
+      message: "We detected a new login from Chrome on Windows. If this wasn't you, please secure your account.",
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+      isRead: true
+    },
+  ];
+
+  const unreadNotificationsCount = notifications.filter(n => !n.isRead).length;
 
   // Check if current route is explorer to apply full-screen layout
   const isExplorerPage = location.pathname === '/explorer';
@@ -99,6 +128,11 @@ const Layout = ({ children }) => {
               onClick={() => setIsNotificationModalOpen(true)}
             >
               <Bell size={20} />
+              {unreadNotificationsCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-medium">
+                  {unreadNotificationsCount}
+                </span>
+              )}
             </Button>
             <Button
               variant="ghost"
