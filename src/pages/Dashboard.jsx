@@ -250,14 +250,14 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 pb-16 md:pb-6">
-      <motion.div 
-        variants={item} 
-        initial="hidden" 
-        animate="show" 
-        className="flex items-center justify-between gap-4 mb-4 px-1"
+      <motion.div
+        variants={item}
+        initial="hidden"
+        animate="show"
+        className="flex items-center justify-between gap-4 mb-4 px-1 md:flex"
       >
         <div className="relative flex-grow max-w-xs sm:max-w-sm md:max-w-md">
-          <Input 
+          <Input
             type="text"
             placeholder="Search wallet (e.g. Bitcoin, send...)"
             className="pl-10 bg-card/80 backdrop-blur-sm border-border/50 focus:border-primary h-10 text-sm rounded-full"
@@ -266,10 +266,10 @@ const Dashboard = () => {
           />
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         </div>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+        <div className="hidden md:flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
             className="text-muted-foreground hover:text-primary hover:bg-muted/50 rounded-full relative"
             onClick={() => setIsNotificationModalOpen(true)}
           >

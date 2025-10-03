@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
-  Home, 
-  Send as SendIcon, 
-  Download, 
-  RefreshCw, 
-  Settings as SettingsIcon, 
+import {
+  Home,
+  Send as SendIcon,
+  Download,
+  RefreshCw,
+  Settings as SettingsIcon,
   Menu,
   MoreVertical,
   X,
@@ -14,9 +14,11 @@ import {
   Wallet,
   LogOut,
   LogIn,
-  Repeat, 
+  Repeat,
   History,
-  Globe
+  Globe,
+  Bell,
+  HelpCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -24,14 +26,16 @@ import { useWallet } from "@/context/WalletContext";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useModal } from "@/context/ModalContext";
+import NotificationModal from "@/components/modals/NotificationModal";
 
 const Layout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const { getTotalBalance } = useWallet();
   const { user, logout } = useAuth();
-  const { theme } = useTheme(); 
+  const { theme } = useTheme();
   const { isModalOpen } = useModal();
 
   const navItems = [
@@ -47,6 +51,11 @@ const Layout = ({ children }) => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const getUserInitials = () => {
+    if (!user || !user.email) return "USER";
+    return user.email.substring(0, 5).toUpperCase();
+  };
+
   const handleLogout = () => {
     logout();
     setIsMobileMenuOpen(false); 
@@ -55,7 +64,13 @@ const Layout = ({ children }) => {
   const handleLogin = () => {
     navigate('/login');
     setIsMobileMenuOpen(false);
-  }
+  };
+
+  const handleHelpClick = () => {
+    console.log('Help clicked');
+  };
+
+  const notifications = [];
 
   // Check if current route is explorer to apply full-screen layout
   const isExplorerPage = location.pathname === '/explorer';
@@ -63,19 +78,45 @@ const Layout = ({ children }) => {
     <div className="flex min-h-screen flex-col md:flex-row">
       {!isExplorerPage && (
         <header className="sticky top-0 z-50 flex items-center justify-between p-4 md:hidden bg-background/95 backdrop-blur-md border-b border-border/30">
-        <Link to="/" className="flex items-center gap-2">
-          <Wallet className="h-6 w-6 text-primary" />
-          <span className="font-bold text-xl">HyperX</span>
-        </Link>
+        {user ? (
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary/30">
+              <span className="text-sm font-semibold text-primary">{getUserInitials()}</span>
+            </div>
+          </Link>
+        ) : (
+          <Link to="/" className="flex items-center gap-2">
+            <Wallet className="h-6 w-6 text-primary" />
+            <span className="font-bold text-xl">HyperX</span>
+          </Link>
+        )}
         {user && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleMobileMenu}
-            className="md:hidden"
-          >
-            {isMobileMenuOpen ? <X /> : <MoreVertical />}
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-primary hover:bg-muted/50 rounded-full relative"
+              onClick={() => setIsNotificationModalOpen(true)}
+            >
+              <Bell size={20} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-primary hover:bg-muted/50 rounded-full"
+              onClick={handleHelpClick}
+            >
+              <HelpCircle size={20} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleMobileMenu}
+              className="md:hidden"
+            >
+              {isMobileMenuOpen ? <X /> : <MoreVertical />}
+            </Button>
+          </div>
         )}
         </header>
       )}
@@ -213,6 +254,12 @@ const Layout = ({ children }) => {
           </div>
         </nav>
       )}
+
+      <NotificationModal
+        isOpen={isNotificationModalOpen}
+        onClose={() => setIsNotificationModalOpen(false)}
+        notifications={notifications}
+      />
     </div>
   );
 };
