@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ArrowDownLeft, TrendingUp, TrendingDown, Star } from "lucide-react";
@@ -6,17 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CryptoIcon } from "@/components/crypto/CryptoIcon";
+import CandlestickChart from "@/components/crypto/CandlestickChart";
 import { cn } from "@/lib/utils";
+import { TIMEFRAMES, calculatePriceChange, getHighLowPrices } from "@/lib/candlestick";
+import { fetchCandlestickData } from "@/lib/candlestickService";
 
-const ChartTimeframes = ["1H", "24H", "1W", "1M", "1Y", "All"];
+const ChartTimeframes = ["5M", "15M", "30M", "1H", "4H", "1D", "1W", "1M"];
 
 const AssetChart = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const crypto = location.state?.crypto;
 
-  const [selectedTimeframe, setSelectedTimeframe] = useState("24H");
+  const [selectedTimeframe, setSelectedTimeframe] = useState("1H");
   const [isFavorite, setIsFavorite] = useState(false);
+  const [chartData, setChartData] = useState([]);
+  const [isLoadingChart, setIsLoadingChart] = useState(true);
 
   if (!crypto) {
     return (
@@ -32,35 +37,31 @@ const AssetChart = () => {
   const { symbol, name, balance, price, color, id } = crypto;
   const value = balance * price;
 
-  const percentChange = useMemo(() => {
-    const changes = { "1H": 1.2, "24H": 3.45, "1W": -2.1, "1M": 12.8, "1Y": 45.2, "All": 234.5 };
-    return changes[selectedTimeframe] || 0;
-  }, [selectedTimeframe]);
+  useEffect(() => {
+    const loadChartData = async () => {
+      setIsLoadingChart(true);
+      try {
+        const data = await fetchCandlestickData(id, selectedTimeframe, price);
+        setChartData(data);
+      } catch (error) {
+        console.error('Error loading chart data:', error);
+      } finally {
+        setIsLoadingChart(false);
+      }
+    };
+
+    loadChartData();
+  }, [id, selectedTimeframe, price]);
+
+  const { change, percentChange } = useMemo(() => {
+    return calculatePriceChange(chartData);
+  }, [chartData]);
 
   const isPositive = percentChange >= 0;
 
-  const chartData = useMemo(() => {
-    const points = selectedTimeframe === "1H" ? 60 : selectedTimeframe === "24H" ? 96 : 100;
-    const basePrice = price;
-    const volatility = basePrice * 0.03;
-
-    let data = [];
-    let currentPrice = basePrice * (1 - (percentChange / 100) / 2);
-
-    for (let i = 0; i < points; i++) {
-      const progress = i / points;
-      const trend = (percentChange / 100) * basePrice * progress;
-      const noise = (Math.random() - 0.5) * volatility;
-      currentPrice = basePrice - trend + noise;
-      data.push(currentPrice);
-    }
-
-    return data;
-  }, [selectedTimeframe, price, percentChange]);
-
-  const maxPrice = Math.max(...chartData);
-  const minPrice = Math.min(...chartData);
-  const priceRange = maxPrice - minPrice;
+  const { high: maxPrice, low: minPrice } = useMemo(() => {
+    return getHighLowPrices(chartData);
+  }, [chartData]);
 
   return (
     <div className="space-y-6 pb-6">
@@ -135,41 +136,18 @@ const AssetChart = () => {
               ))}
             </div>
 
-            <div className="relative h-64 w-full">
-              <svg
-                viewBox={`0 0 ${chartData.length} 100`}
-                className="w-full h-full"
-                preserveAspectRatio="none"
-              >
-                <defs>
-                  <linearGradient id={`gradient-${id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-                    <stop offset="100%" stopColor={color} stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-
-                <path
-                  d={`M 0,${100 - ((chartData[0] - minPrice) / priceRange) * 100} ${chartData
-                    .map((price, i) => `L ${i},${100 - ((price - minPrice) / priceRange) * 100}`)
-                    .join(" ")} L ${chartData.length},100 L 0,100 Z`}
-                  fill={`url(#gradient-${id})`}
+            <div className="relative w-full">
+              {isLoadingChart ? (
+                <div className="flex items-center justify-center" style={{ height: '320px' }}>
+                  <div className="text-muted-foreground">Loading chart...</div>
+                </div>
+              ) : (
+                <CandlestickChart
+                  data={chartData}
+                  color={color}
+                  height={320}
                 />
-
-                <path
-                  d={`M 0,${100 - ((chartData[0] - minPrice) / priceRange) * 100} ${chartData
-                    .map((price, i) => `L ${i},${100 - ((price - minPrice) / priceRange) * 100}`)
-                    .join(" ")}`}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth="2"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
-            </div>
-
-            <div className="flex justify-between text-xs text-muted-foreground mt-2">
-              <span>${minPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-              <span>${maxPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -210,11 +188,11 @@ const AssetChart = () => {
                   <span className="font-semibold">${(price * balance * 500000).toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">24h High</span>
+                  <span className="text-muted-foreground">{TIMEFRAMES[selectedTimeframe]?.label} High</span>
                   <span className="font-semibold">${maxPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">24h Low</span>
+                  <span className="text-muted-foreground">{TIMEFRAMES[selectedTimeframe]?.label} Low</span>
                   <span className="font-semibold">${minPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</span>
                 </div>
                 <div className="flex justify-between">
