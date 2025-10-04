@@ -12,12 +12,16 @@ const CandlestickChart = ({ data, color = '#3b82f6', height = 320 }) => {
   useEffect(() => {
     if (!chartContainerRef.current || !data || data.length === 0) return;
 
+    let isMounted = true;
+
     const isDark = theme === 'dark' ||
                    (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
     const backgroundColor = isDark ? '#1a1a1a' : '#ffffff';
     const textColor = isDark ? '#9ca3af' : '#6b7280';
     const gridColor = isDark ? '#2a2a2a' : '#f3f4f6';
+
+    if (!isMounted || !chartContainerRef.current) return;
 
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
@@ -108,10 +112,17 @@ const CandlestickChart = ({ data, color = '#3b82f6', height = 320 }) => {
     window.addEventListener('resize', handleResize);
 
     return () => {
+      isMounted = false;
       window.removeEventListener('resize', handleResize);
       if (chartRef.current) {
-        chartRef.current.remove();
+        try {
+          chartRef.current.remove();
+        } catch (error) {
+          console.error('Error removing chart:', error);
+        }
         chartRef.current = null;
+        candlestickSeriesRef.current = null;
+        volumeSeriesRef.current = null;
       }
     };
   }, [data, color, height, theme]);

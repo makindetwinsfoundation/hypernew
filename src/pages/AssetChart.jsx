@@ -10,18 +10,66 @@ import CandlestickChart from "@/components/crypto/CandlestickChart";
 import { cn } from "@/lib/utils";
 import { TIMEFRAMES, calculatePriceChange, getHighLowPrices } from "@/lib/candlestick";
 import { fetchCandlestickData } from "@/lib/candlestickService";
+import { useWallet } from "@/context/WalletContext";
 
 const ChartTimeframes = ["5M", "15M", "30M", "1H", "4H", "1D", "1W", "1M"];
 
 const AssetChart = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const crypto = location.state?.crypto;
+  const { cryptos } = useWallet();
+  const [crypto, setCrypto] = useState(null);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   const [selectedTimeframe, setSelectedTimeframe] = useState("1H");
   const [isFavorite, setIsFavorite] = useState(false);
   const [chartData, setChartData] = useState([]);
   const [isLoadingChart, setIsLoadingChart] = useState(true);
+
+  useEffect(() => {
+    const initializeCrypto = () => {
+      let selectedCrypto = location.state?.crypto;
+
+      if (!selectedCrypto) {
+        try {
+          const stored = sessionStorage.getItem('selectedCrypto');
+          if (stored) {
+            selectedCrypto = JSON.parse(stored);
+          }
+        } catch (error) {
+          console.error('Error parsing stored crypto:', error);
+        }
+      }
+
+      if (!selectedCrypto && cryptos.length > 0) {
+        const cryptoId = new URLSearchParams(location.search).get('id');
+        if (cryptoId) {
+          selectedCrypto = cryptos.find(c => c.id === cryptoId);
+        }
+      }
+
+      setCrypto(selectedCrypto);
+      setIsInitializing(false);
+    };
+
+    initializeCrypto();
+  }, [location.state, location.search, cryptos]);
+
+  useEffect(() => {
+    return () => {
+      sessionStorage.removeItem('selectedCrypto');
+    };
+  }, []);
+
+  if (isInitializing) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-pulse text-muted-foreground">Loading asset...</div>
+        </div>
+      </div>
+    );
+  }
 
   if (!crypto) {
     return (
