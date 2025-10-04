@@ -506,10 +506,7 @@ const Dashboard = () => {
                       <AssetRowNew
                         key={crypto.id}
                         crypto={crypto}
-                        onClick={() => {
-                          sessionStorage.setItem('selectedCrypto', JSON.stringify(crypto));
-                          navigate("/asset-chart", { state: { crypto } });
-                        }}
+                        onClick={() => navigate("/asset-chart", { state: { crypto } })}
                         isBalanceVisible={isBalanceVisible}
                       />
                     ))}

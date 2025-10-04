@@ -27,7 +27,6 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "framer-motion": "^10.16.4",
-    "lightweight-charts": "^5.0.9",
     "lucide-react": "^0.285.0",
     "qrcode.react": "^3.1.0",
     "react": "^18.2.0",
