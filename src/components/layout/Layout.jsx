@@ -56,6 +56,12 @@ const Layout = ({ children }) => {
     return user.email.substring(0, 5).toUpperCase();
   };
 
+  const getUserName = () => {
+    if (!user || !user.email) return "User";
+    const emailPrefix = user.email.split('@')[0];
+    return emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+  };
+
   const handleLogout = () => {
     logout();
     setIsMobileMenuOpen(false); 
@@ -108,10 +114,15 @@ const Layout = ({ children }) => {
       {!isExplorerPage && (
         <header className="sticky top-0 z-50 flex items-center justify-between p-4 md:hidden bg-background/95 backdrop-blur-md border-b border-border/30">
         {user ? (
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary/30">
-              <span className="text-sm font-semibold text-primary">{getUserInitials()}</span>
+          <Link to="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-white dark:bg-white flex items-center justify-center border-2 border-primary/30 overflow-hidden shrink-0">
+              <img
+                src="/my-new-logo.png"
+                alt="HyperX Logo"
+                className="w-7 h-7 object-contain"
+              />
             </div>
+            <span className="text-sm font-semibold text-foreground">Hi, {getUserName()}</span>
           </Link>
         ) : (
           <Link to="/" className="flex items-center gap-2">
@@ -183,9 +194,23 @@ const Layout = ({ children }) => {
           </div>
 
           <div className="crypto-card rounded-xl p-4 mb-8">
-            <p className="text-sm text-muted-foreground mb-1">Total Balance</p>
-            <h2 className="text-2xl font-bold">${getTotalBalance().toLocaleString('en-US', { maximumFractionDigits: 2 })}</h2>
-            {user && <p className="text-xs text-muted-foreground mt-1 truncate">Logged in as: {user.email}</p>}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-white dark:bg-white flex items-center justify-center border-2 border-primary/30 overflow-hidden shrink-0">
+                <img
+                  src="/my-new-logo.png"
+                  alt="HyperX Logo"
+                  className="w-9 h-9 object-contain"
+                />
+              </div>
+              <div>
+                <p className="text-base font-semibold text-foreground">Hi, {getUserName()}</p>
+                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+              </div>
+            </div>
+            <div className="border-t border-border/50 pt-3">
+              <p className="text-sm text-muted-foreground mb-1">Total Balance</p>
+              <h2 className="text-2xl font-bold">${getTotalBalance().toLocaleString('en-US', { maximumFractionDigits: 2 })}</h2>
+            </div>
           </div>
 
           <nav className="space-y-1 flex-1">
