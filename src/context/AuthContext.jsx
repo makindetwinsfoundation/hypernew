@@ -3,6 +3,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from 'react-router-dom';
 import { walletAPI } from '@/lib/api';
 import { authAPI } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
 
 // Helper function to decode JWT tokens
 const decodeJwt = (token) => {
@@ -390,27 +391,73 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (response.ok) {
-        toast({ 
-          title: "Verification Email Sent", 
-          description: "Please check your email for the verification code." 
+        toast({
+          title: "Verification Email Sent",
+          description: "Please check your email for the verification code."
         });
         return true;
       } else {
-        toast({ 
-          title: "Failed to Send", 
-          description: data.message || "Could not send verification email.", 
-          variant: "destructive" 
+        toast({
+          title: "Failed to Send",
+          description: data.message || "Could not send verification email.",
+          variant: "destructive"
         });
         return false;
       }
     } catch (error) {
       console.error('Resend verification error:', error);
-      toast({ 
-        title: "Failed to Send", 
-        description: "Network error. Please try again.", 
-        variant: "destructive" 
+      toast({
+        title: "Failed to Send",
+        description: "Network error. Please try again.",
+        variant: "destructive"
       });
       return false;
+    }
+  };
+
+  const submitBiodata = async (email, biodataFormData) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const decodedPayload = decodeJwt(token);
+      if (!decodedPayload || !decodedPayload.sub) {
+        throw new Error('Invalid authentication token');
+      }
+
+      const userId = decodedPayload.sub;
+
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .insert([
+          {
+            user_id: userId,
+            email: email,
+            first_name: biodataFormData.firstName.trim(),
+            last_name: biodataFormData.lastName.trim(),
+            identity_type: biodataFormData.identityType,
+            identity_number: biodataFormData.identityNumber
+          }
+        ])
+        .select();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw new Error(error.message || 'Failed to save biodata');
+      }
+
+      console.log('Biodata saved successfully:', data);
+      return data;
+    } catch (error) {
+      console.error('Submit biodata error:', error);
+      toast({
+        title: "Failed to Save",
+        description: error.message || "Could not save your information. Please try again.",
+        variant: "destructive"
+      });
+      throw error;
     }
   };
 
@@ -422,6 +469,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     verifyEmail,
     resendVerification,
+    submitBiodata,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
