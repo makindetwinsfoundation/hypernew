@@ -120,7 +120,7 @@ const Layout = ({ children }) => {
           </Link>
         )}
         {user && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 border border-border/40 rounded-lg p-1">
             <Button
               variant="ghost"
               size="icon"
@@ -129,7 +129,7 @@ const Layout = ({ children }) => {
             >
               <Bell size={20} />
               {unreadNotificationsCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-medium">
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-medium">
                   {unreadNotificationsCount}
                 </span>
               )}
