@@ -114,7 +114,10 @@ const Layout = ({ children }) => {
       {!isExplorerPage && (
         <header className="sticky top-0 z-50 flex items-center justify-between p-4 md:hidden bg-background/95 backdrop-blur-md border-b border-border/30">
         {user ? (
-          <Link to="/" className="flex items-center gap-3">
+          <div
+            onClick={() => navigate('/profile')}
+            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+          >
             <div className="w-10 h-10 rounded-full bg-white dark:bg-white flex items-center justify-center border-2 border-primary/30 overflow-hidden shrink-0">
               <img
                 src="/my-new-logo.png"
@@ -123,7 +126,7 @@ const Layout = ({ children }) => {
               />
             </div>
             <span className="text-sm font-semibold text-foreground">Hi, {getUserName()}</span>
-          </Link>
+          </div>
         ) : (
           <Link to="/" className="flex items-center gap-2">
             <Wallet className="h-6 w-6 text-primary" />
@@ -194,7 +197,13 @@ const Layout = ({ children }) => {
           </div>
 
           <div className="crypto-card rounded-xl p-4 mb-8">
-            <div className="flex items-center gap-3 mb-4">
+            <div
+              className="flex items-center gap-3 mb-4 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => {
+                navigate('/profile');
+                setIsMobileMenuOpen(false);
+              }}
+            >
               <div className="w-12 h-12 rounded-full bg-white dark:bg-white flex items-center justify-center border-2 border-primary/30 overflow-hidden shrink-0">
                 <img
                   src="/my-new-logo.png"
