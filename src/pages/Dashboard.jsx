@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
-import { useMotionValue, useAnimation } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, ArrowDownLeft, RefreshCw, List, Search, Eye, EyeOff, ChevronDown, History, Repeat, Filter, Wallet, Bell, HelpCircle, Plus } from 'lucide-react';
 import { Users, Building2, Receipt, ArrowRightLeft } from 'lucide-react';
@@ -81,11 +80,8 @@ const Dashboard = () => {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0); // 0 for crypto, 1 for fiat
+  const [currentPage, setCurrentPage] = useState(0);
   const [selectedFiatCurrency, setSelectedFiatCurrency] = useState("NGN");
-  const cardContentRef = useRef(null);
-  const x = useMotionValue(0);
-  const controls = useAnimation();
 
   // Sample fiat balances
   const fiatBalances = [
@@ -177,24 +173,13 @@ const Dashboard = () => {
   // Calculate unread notifications count
   const unreadNotificationsCount = notifications.filter(n => !n.isRead).length;
 
-  const handleDragEnd = (event, info) => {
-    const containerWidth = cardContentRef.current?.offsetWidth || 0;
-    const threshold = containerWidth * 0.1; // 10% of container width
-    
-    if (info.offset.x > threshold && currentPage === 1) {
-      // Swipe right to go to crypto (page 0)
-      setCurrentPage(0);
-    } else if (info.offset.x < -threshold && currentPage === 0) {
-      // Swipe left to go to fiat (page 1)
+  const handleSwipe = (direction) => {
+    if (direction === 'left' && currentPage === 0) {
       setCurrentPage(1);
+    } else if (direction === 'right' && currentPage === 1) {
+      setCurrentPage(0);
     }
   };
-
-  useEffect(() => {
-    const containerWidth = cardContentRef.current?.offsetWidth || 0;
-    const targetX = -currentPage * containerWidth;
-    controls.start({ x: targetX });
-  }, [currentPage, controls, cardContentRef.current?.offsetWidth]);
 
   const handleDepositClick = () => {
     setIsDepositModalOpen(true);
@@ -284,106 +269,119 @@ const Dashboard = () => {
         </div>
       </motion.div>
       
-      <motion.div variants={item} initial="hidden" animate="show">
-        <Card className="crypto-card border-none hover:shadow-lg transition-all duration-300">
-          <CardContent ref={cardContentRef} className="p-5 overflow-hidden">
-            <motion.div
-              className="flex"
-              drag="x"
-              style={{ x }}
-              onDragEnd={handleDragEnd}
-              dragConstraints={{
-                left: -(cardContentRef.current?.offsetWidth || 0),
-                right: 0,
-              }}
-              animate={controls}
-              transition={{ type: "tween", duration: 0.2, ease: "easeOut" }}
-            >
-              {/* Crypto Balance Page */}
-              <div className="flex-shrink-0 w-full">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Wallet size={16} />
-                    <span>Crypto Balance</span>
+      <motion.div variants={item} initial="hidden" animate="show" className="relative">
+        <Card className="crypto-card border-none hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+          <div className="relative min-h-[200px]">
+            <AnimatePresence mode="wait">
+              {currentPage === 0 ? (
+                <motion.div
+                  key="crypto"
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, { offset }) => {
+                    if (offset.x < -50) handleSwipe('left');
+                  }}
+                  className="absolute inset-0 p-5"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Wallet size={16} />
+                      <span>Crypto Balance</span>
+                    </div>
+                    <button
+                      onClick={() => setIsBalanceVisible(!isBalanceVisible)}
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {isBalanceVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+                    </button>
                   </div>
-                  <button 
-                    onClick={() => setIsBalanceVisible(!isBalanceVisible)}
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {isBalanceVisible ? <Eye size={16} /> : <EyeOff size={16} />}
-                  </button>
-                </div>
-                {loadingBalances ? (
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="h-10 w-32 bg-muted animate-pulse rounded"></div>
+                  {loadingBalances ? (
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="h-10 w-32 bg-muted animate-pulse rounded"></div>
+                    </div>
+                  ) : (
+                    <h1 className="text-4xl font-bold mb-1">
+                      {isBalanceVisible ? `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
+                    </h1>
+                  )}
+                  <div className="flex items-center text-xs mb-3">
+                    <span className={cn(simulatedDailyChange >= 0 ? "text-green-500" : "text-red-500")}>
+                      {isBalanceVisible
+                        ? `${simulatedDailyChange >= 0 ? "+" : ""}$${Math.abs(simulatedDailyChange).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${simulatedDailyPercent.toFixed(2)}%) 1D`
+                        : '******** 1D'
+                      }
+                    </span>
                   </div>
-                ) : (
-                  <h1 className="text-4xl font-bold mb-1">
-                    {isBalanceVisible ? `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
-                  </h1>
-                )}
-                <div className="flex items-center text-xs mb-3">
-                  <span className={cn(simulatedDailyChange >= 0 ? "text-green-500" : "text-red-500")}>
-                    {isBalanceVisible ? 
-                      `${simulatedDailyChange >= 0 ? "+" : ""}$${Math.abs(simulatedDailyChange).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${simulatedDailyPercent.toFixed(2)}%) 1D` : 
-                      '******** 1D'
-                    }
-                  </span>
-                </div>
-              </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="fiat"
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 50 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, { offset }) => {
+                    if (offset.x > 50) handleSwipe('right');
+                  }}
+                  className="absolute inset-0 p-5"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <Wallet size={16} />
+                      <Select value={selectedFiatCurrency} onValueChange={setSelectedFiatCurrency}>
+                        <SelectTrigger className="h-6 w-auto border-none bg-transparent p-0 text-sm text-muted-foreground hover:text-primary focus:ring-0">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {fiatBalances.map((fiat) => (
+                            <SelectItem key={fiat.code} value={fiat.code}>
+                              <div className="flex items-center gap-2">
+                                <span className="text-base">{fiat.flag}</span>
+                                <span className="font-medium">{fiat.code}</span>
+                                <span className="text-xs text-muted-foreground">- {fiat.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <button
+                      onClick={() => setIsBalanceVisible(!isBalanceVisible)}
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {isBalanceVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+                    </button>
+                  </div>
+                  {loadingBalances ? (
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="h-10 w-32 bg-muted animate-pulse rounded"></div>
+                    </div>
+                  ) : (
+                    <h1 className="text-4xl font-bold mb-1">
+                      {isBalanceVisible ? `${getSelectedFiatData()?.code === 'NGN' ? '₦' : getSelectedFiatData()?.code === 'ZAR' ? 'R' : getSelectedFiatData()?.code === 'GHS' ? '₵' : 'KSh'}${getSelectedFiatBalance().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
+                    </h1>
+                  )}
+                  <div className="flex items-center text-xs mb-3">
+                    <span className="text-green-500">
+                      {isBalanceVisible
+                        ? `+${getSelectedFiatData()?.code === 'NGN' ? '₦' : getSelectedFiatData()?.code === 'ZAR' ? 'R' : getSelectedFiatData()?.code === 'GHS' ? '₵' : 'KSh'}${(getSelectedFiatBalance() * 0.021).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (2.1%) 1D`
+                        : '******** 1D'
+                      }
+                    </span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
-              {/* Fiat Balance Page */}
-              <div className="flex-shrink-0 w-full pl-4">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                    <Wallet size={16} />
-                    <Select value={selectedFiatCurrency} onValueChange={setSelectedFiatCurrency}>
-                      <SelectTrigger className="h-6 w-auto border-none bg-transparent p-0 text-sm text-muted-foreground hover:text-primary focus:ring-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {fiatBalances.map((fiat) => (
-                          <SelectItem key={fiat.code} value={fiat.code}>
-                            <div className="flex items-center gap-2">
-                              <span className="text-base">{fiat.flag}</span>
-                              <span className="font-medium">{fiat.code}</span>
-                              <span className="text-xs text-muted-foreground">- {fiat.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <button 
-                    onClick={() => setIsBalanceVisible(!isBalanceVisible)}
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {isBalanceVisible ? <Eye size={16} /> : <EyeOff size={16} />}
-                  </button>
-                </div>
-                
-                {loadingBalances ? (
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="h-10 w-32 bg-muted animate-pulse rounded"></div>
-                  </div>
-                ) : (
-                  <h1 className="text-4xl font-bold mb-1">
-                    {isBalanceVisible ? `${getSelectedFiatData()?.code === 'NGN' ? '₦' : getSelectedFiatData()?.code === 'ZAR' ? 'R' : getSelectedFiatData()?.code === 'GHS' ? '₵' : 'KSh'}${getSelectedFiatBalance().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
-                  </h1>
-                )}
-                <div className="flex items-center text-xs mb-3">
-                  <span className="text-green-500">
-                    {isBalanceVisible ? 
-                      `+${getSelectedFiatData()?.code === 'NGN' ? '₦' : getSelectedFiatData()?.code === 'ZAR' ? 'R' : getSelectedFiatData()?.code === 'GHS' ? '₵' : 'KSh'}${(getSelectedFiatBalance() * 0.021).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (2.1%) 1D` : 
-                      '******** 1D'
-                    }
-                  </span>
-                </div>
-              </div>
-            </motion.div>
-          </CardContent>
-          
-          {/* Page Indicators */}
           <div className="flex justify-center gap-2 pb-4">
             {[0, 1].map((page) => (
               <button
@@ -396,7 +394,7 @@ const Dashboard = () => {
               />
             ))}
           </div>
-          
+
           <div className="px-5 pb-5">
             {currentPage === 0 ? (
               <div className="flex flex-row items-center justify-between md:flex-col md:items-start">

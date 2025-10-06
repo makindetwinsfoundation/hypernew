@@ -18,7 +18,8 @@ import {
   History,
   Globe,
   Bell,
-  HelpCircle
+  HelpCircle,
+  CreditCard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -286,12 +287,13 @@ const Layout = ({ children }) => {
         isExplorerPage ? "p-0" : "p-4 md:p-8 pb-20 md:pb-8"
       )}>{children}</main>
 
-      {!isModalOpen && user && (location.pathname === "/" || location.pathname === "/explorer") && (
+      {!isModalOpen && user && (location.pathname === "/" || location.pathname === "/explorer" || location.pathname === "/card") && (
         <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/30 bg-background/80 backdrop-blur-md md:hidden">
           <div className="flex justify-around items-center h-16">
             {[
               { path: "/", label: "Home", icon: Home },
               { path: "/swap", label: "Swap", icon: Repeat },
+              { path: "/card", label: "Card", icon: CreditCard },
               { path: "/explorer", label: "Explorer", icon: Globe },
             ].map((item) => {
               const isActive = location.pathname === item.path;
