@@ -396,7 +396,7 @@ const Dashboard = () => {
           </div>
 
           <div className="px-5 pb-5">
-            {currentPage === 0 ? (
+            {currentPage === 0 && (
               <div className="flex flex-row items-center justify-between md:flex-col md:items-start">
                 <Button
                   onClick={handleDepositClick}
@@ -406,32 +406,42 @@ const Dashboard = () => {
                   Deposit
                 </Button>
               </div>
-            ) : (
-              <div className="grid grid-cols-4 gap-x-2 gap-y-4 items-start justify-items-center px-2 py-4">
-                <ActionButton icon={Users} label="To HyperX" onClick={() => navigate("/internal-fiat-transfer")} />
-                <ActionButton icon={Building2} label="Send" onClick={() => navigate("/send-fiat")} />
-                <ActionButton icon={Receipt} label="Bill" onClick={() => navigate("/bill-payments")} />
-                <ActionButton icon={ArrowRightLeft} label="Convert" onClick={() => navigate("/fiat-convert")} />
-              </div>
             )}
           </div>
         </Card>
       </motion.div>
 
-      {currentPage === 0 && (
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate="show"
-          exit="hidden"
-          className="grid grid-cols-4 gap-x-2 gap-y-4 items-start justify-items-center px-2 py-4"
-        >
-          <ActionButton icon={ArrowUpRight} label="Send" onClick={handleSendClick} className="hover:scale-105 transition-transform duration-200" />
-          <ActionButton icon={ArrowDownLeft} label="Receive" onClick={() => navigate("/receive")} />
-          <ActionButton icon={Repeat} label="Convert" onClick={() => navigate("/convert")} />
-          <ActionButton icon={History} label="History" onClick={() => navigate("/history")} />
-        </motion.div>
-      )}
+      <AnimatePresence mode="wait">
+        {currentPage === 0 ? (
+          <motion.div
+            key="crypto-actions"
+            variants={container}
+            initial="hidden"
+            animate="show"
+            exit="hidden"
+            className="grid grid-cols-4 gap-x-2 gap-y-4 items-start justify-items-center px-2 py-4"
+          >
+            <ActionButton icon={ArrowUpRight} label="Send" onClick={handleSendClick} className="hover:scale-105 transition-transform duration-200" />
+            <ActionButton icon={ArrowDownLeft} label="Receive" onClick={() => navigate("/receive")} />
+            <ActionButton icon={Repeat} label="Convert" onClick={() => navigate("/convert")} />
+            <ActionButton icon={History} label="History" onClick={() => navigate("/history")} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="fiat-actions"
+            variants={container}
+            initial="hidden"
+            animate="show"
+            exit="hidden"
+            className="grid grid-cols-4 gap-x-2 gap-y-4 items-start justify-items-center px-2 py-4"
+          >
+            <ActionButton icon={Users} label="To HyperX" onClick={() => navigate("/internal-fiat-transfer")} />
+            <ActionButton icon={Building2} label="Send" onClick={() => navigate("/send-fiat")} />
+            <ActionButton icon={Receipt} label="Bill" onClick={() => navigate("/bill-payments")} />
+            <ActionButton icon={ArrowRightLeft} label="Convert" onClick={() => navigate("/fiat-convert")} />
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       <motion.div variants={item} initial="hidden" animate="show">
         <Card className="crypto-card border-none">
