@@ -420,17 +420,20 @@ const Dashboard = () => {
         </Card>
       </motion.div>
 
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-4 gap-x-2 gap-y-4 items-start justify-items-center px-2 py-4"
-      >
-        <ActionButton icon={ArrowUpRight} label="Send" onClick={handleSendClick} className="hover:scale-105 transition-transform duration-200" />
-        <ActionButton icon={ArrowDownLeft} label="Receive" onClick={() => navigate("/receive")} />
-        <ActionButton icon={Repeat} label="Convert" onClick={() => navigate("/convert")} />
-        <ActionButton icon={History} label="History" onClick={() => navigate("/history")} />
-      </motion.div>
+      {currentPage === 0 && (
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          exit="hidden"
+          className="grid grid-cols-4 gap-x-2 gap-y-4 items-start justify-items-center px-2 py-4"
+        >
+          <ActionButton icon={ArrowUpRight} label="Send" onClick={handleSendClick} className="hover:scale-105 transition-transform duration-200" />
+          <ActionButton icon={ArrowDownLeft} label="Receive" onClick={() => navigate("/receive")} />
+          <ActionButton icon={Repeat} label="Convert" onClick={() => navigate("/convert")} />
+          <ActionButton icon={History} label="History" onClick={() => navigate("/history")} />
+        </motion.div>
+      )}
       
       <motion.div variants={item} initial="hidden" animate="show">
         <Card className="crypto-card border-none">
