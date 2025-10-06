@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowUpRight, ArrowDownLeft, RefreshCw, List, Search, Eye, EyeOff, ChevronDown, History, Repeat, Filter, Wallet, Bell, HelpCircle, Plus } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, RefreshCw, List, Search, Eye, EyeOff, ChevronDown, History, Repeat, Filter, Wallet, Bell, HelpCircle, Plus, ChevronLeft } from 'lucide-react';
 import { Users, Building2, Receipt, ArrowRightLeft } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -271,6 +271,12 @@ const Dashboard = () => {
       
       <motion.div variants={item} initial="hidden" animate="show" className="relative">
         <Card className="crypto-card border-none hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+          {currentPage === 0 && (
+            <div className="absolute top-3 right-3 flex items-center gap-1 text-xs text-muted-foreground z-10">
+              <span>Swipe left</span>
+              <ChevronLeft size={14} className="transform rotate-180" />
+            </div>
+          )}
           <div className="relative min-h-[200px]">
             <AnimatePresence mode="wait">
               {currentPage === 0 ? (
@@ -382,31 +388,16 @@ const Dashboard = () => {
             </AnimatePresence>
           </div>
 
-          <div className="flex justify-center gap-2 pb-4">
-            {[0, 1].map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={cn(
-                  "w-2 h-2 rounded-full transition-colors duration-200",
-                  currentPage === page ? "bg-primary" : "bg-muted-foreground/30"
-                )}
-              />
-            ))}
-          </div>
-
           <div className="px-5 pb-5">
-            {currentPage === 0 && (
-              <div className="flex flex-row items-center justify-between md:flex-col md:items-start">
-                <Button
-                  onClick={handleDepositClick}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98]"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Deposit
-                </Button>
-              </div>
-            )}
+            <div className="flex flex-row items-center justify-between md:flex-col md:items-start">
+              <Button
+                onClick={handleDepositClick}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98]"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Deposit
+              </Button>
+            </div>
           </div>
         </Card>
       </motion.div>
