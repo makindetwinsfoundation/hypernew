@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CryptoIcon } from "@/components/crypto/CryptoIcon";
 import { useWallet } from "@/context/WalletContext";
 import { cn } from "@/lib/utils";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TransferTypeModal from "@/components/modals/TransferTypeModal";
 import DepositTypeModal from "@/components/modals/DepositTypeModal";
 import NotificationModal from "@/components/modals/NotificationModal";
@@ -78,7 +77,6 @@ const Dashboard = () => {
   const { cryptos, getTotalBalance, loadingBalances } = useWallet();
   const [globalSearchTerm, setGlobalSearchTerm] = useState("");
   const [assetSearchTerm, setAssetSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("crypto");
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
@@ -422,19 +420,7 @@ const Dashboard = () => {
         </Card>
       </motion.div>
 
-      <motion.div variants={item} initial="hidden" animate="show">
-        <Card className="crypto-card border-none p-5 hover:shadow-lg transition-all duration-300">
-          <div className="flex items-center justify-between mb-1">
-            <div>
-              <p className="font-semibold text-sm">Check $NEW_COIN airdrop!</p>
-              <p className="text-xs text-muted-foreground">Exclusively on YourWallet.</p>
-            </div>
-            <Button variant="link" size="sm" className="text-primary p-0 h-auto">Check <ArrowUpRight size={14} className="ml-1"/></Button>
-          </div>
-        </Card>
-      </motion.div>
-
-      <motion.div 
+      <motion.div
         variants={container}
         initial="hidden"
         animate="show"
@@ -447,82 +433,69 @@ const Dashboard = () => {
       </motion.div>
       
       <motion.div variants={item} initial="hidden" animate="show">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-card crypto-card border-none">
-            <TabsTrigger value="crypto" className="data-[state=active]:bg-muted/70 data-[state=active]:text-primary transition-all duration-200">Crypto</TabsTrigger>
-            <TabsTrigger value="nft" disabled>NFT</TabsTrigger>
-            <TabsTrigger value="defi" disabled>DeFi</TabsTrigger>
-            <TabsTrigger value="approvals" disabled>Approvals</TabsTrigger>
-          </TabsList>
-          <TabsContent value="crypto" className="mt-4">
-            <Card className="crypto-card border-none">
-              <CardHeader className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <CardTitle className="text-sm font-normal text-muted-foreground">Total assets</CardTitle>
-                    {loadingBalances ? (
-                      <div className="h-6 w-24 bg-muted animate-pulse rounded mt-1"></div>
-                    ) : (
-                      <p className="text-lg font-semibold">
-                        {isBalanceVisible ? `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
-                      </p>
-                    )}
-                  </div>
-                  <Filter size={18} className="text-muted-foreground cursor-pointer hover:text-primary" />
-                </div>
-                <div className="relative">
-                  <Input 
-                    type="text"
-                    placeholder="Search assets..."
-                    className="pl-9 bg-background/50 border-border/50 focus:border-primary h-9 text-sm rounded-full"
-                    value={assetSearchTerm}
-                    onChange={(e) => setAssetSearchTerm(e.target.value)}
-                  />
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                </div>
-              </CardHeader>
-              <CardContent className="p-2 pt-0 max-h-[400px] overflow-y-auto">
+        <Card className="crypto-card border-none">
+          <CardHeader className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <CardTitle className="text-sm font-normal text-muted-foreground">Total assets</CardTitle>
                 {loadingBalances ? (
-                  <div className="space-y-3 p-2">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} className="flex items-center justify-between p-3 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-muted animate-pulse rounded-full"></div>
-                          <div>
-                            <div className="h-4 w-16 bg-muted animate-pulse rounded mb-1"></div>
-                            <div className="h-3 w-20 bg-muted animate-pulse rounded"></div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="h-4 w-16 bg-muted animate-pulse rounded mb-1"></div>
-                          <div className="h-3 w-20 bg-muted animate-pulse rounded"></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : filteredCryptos.length > 0 ? (
-                  <div className="space-y-1">
-                    {filteredCryptos.map((crypto) => (
-                      <AssetRowNew
-                        key={crypto.id}
-                        crypto={crypto}
-                        onClick={() => navigate("/asset-chart", { state: { crypto } })}
-                        isBalanceVisible={isBalanceVisible}
-                      />
-                    ))}
-                  </div>
+                  <div className="h-6 w-24 bg-muted animate-pulse rounded mt-1"></div>
                 ) : (
-                  <p className="text-center py-10 text-sm text-muted-foreground">
-                    {assetSearchTerm ? "No assets found matching your search." : "No assets yet."}
+                  <p className="text-lg font-semibold">
+                    {isBalanceVisible ? `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '********'}
                   </p>
                 )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="nft"><p className="text-center py-10 text-muted-foreground">NFTs coming soon!</p></TabsContent>
-          <TabsContent value="defi"><p className="text-center py-10 text-muted-foreground">DeFi features coming soon!</p></TabsContent>
-          <TabsContent value="approvals"><p className="text-center py-10 text-muted-foreground">Approvals management coming soon!</p></TabsContent>
-        </Tabs>
+              </div>
+              <Filter size={18} className="text-muted-foreground cursor-pointer hover:text-primary" />
+            </div>
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder="Search assets..."
+                className="pl-9 bg-background/50 border-border/50 focus:border-primary h-9 text-sm rounded-full"
+                value={assetSearchTerm}
+                onChange={(e) => setAssetSearchTerm(e.target.value)}
+              />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            </div>
+          </CardHeader>
+          <CardContent className="p-2 pt-0 max-h-[400px] overflow-y-auto">
+            {loadingBalances ? (
+              <div className="space-y-3 p-2">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-muted animate-pulse rounded-full"></div>
+                      <div>
+                        <div className="h-4 w-16 bg-muted animate-pulse rounded mb-1"></div>
+                        <div className="h-3 w-20 bg-muted animate-pulse rounded"></div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="h-4 w-16 bg-muted animate-pulse rounded mb-1"></div>
+                      <div className="h-3 w-20 bg-muted animate-pulse rounded"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredCryptos.length > 0 ? (
+              <div className="space-y-1">
+                {filteredCryptos.map((crypto) => (
+                  <AssetRowNew
+                    key={crypto.id}
+                    crypto={crypto}
+                    onClick={() => navigate("/asset-chart", { state: { crypto } })}
+                    isBalanceVisible={isBalanceVisible}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="text-center py-10 text-sm text-muted-foreground">
+                {assetSearchTerm ? "No assets found matching your search." : "No assets yet."}
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </motion.div>
 
       <TransferTypeModal
