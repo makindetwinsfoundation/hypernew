@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import TransferTypeModal from "@/components/modals/TransferTypeModal";
 import DepositTypeModal from "@/components/modals/DepositTypeModal";
 import NotificationModal from "@/components/modals/NotificationModal";
+import FiatDepositModal from "@/components/modals/FiatDepositModal";
 
 const ActionButton = ({ icon: Icon, label, onClick, className }) => (
   <motion.div 
@@ -79,6 +80,7 @@ const Dashboard = () => {
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
+  const [isFiatDepositModalOpen, setIsFiatDepositModalOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedFiatCurrency, setSelectedFiatCurrency] = useState("NGN");
@@ -182,7 +184,11 @@ const Dashboard = () => {
   };
 
   const handleDepositClick = () => {
-    setIsDepositModalOpen(true);
+    if (currentPage === 0) {
+      setIsDepositModalOpen(true);
+    } else {
+      setIsFiatDepositModalOpen(true);
+    }
   };
 
   const handleDepositTypeSelect = (type) => {
@@ -516,6 +522,11 @@ const Dashboard = () => {
         isOpen={isNotificationModalOpen}
         onClose={() => setIsNotificationModalOpen(false)}
         notifications={notifications}
+      />
+      <FiatDepositModal
+        isOpen={isFiatDepositModalOpen}
+        onClose={() => setIsFiatDepositModalOpen(false)}
+        currency={selectedFiatCurrency}
       />
     </div>
   );
